@@ -1,3 +1,4 @@
+import hmac
 import sys
 from pathlib import Path
 
@@ -37,6 +38,152 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# ============================================================
+# PASSWORD PROTECTION
+# ============================================================
+
+def check_password():
+
+    if st.session_state.get("authenticated", False):
+        return True
+
+    st.markdown(
+    """
+    <style>
+
+                div.stButton > button {
+            background: linear-gradient(
+                135deg,
+                #8E5AA8,
+                #684080
+            ) !important;
+
+            color: white !important;
+
+            border: none !important;
+
+            border-radius: 12px !important;
+
+            font-weight: 750 !important;
+
+            min-height: 44px;
+
+            box-shadow:
+                0 8px 18px rgba(104, 64, 128, 0.20);
+
+            transition: all 0.2s ease;
+        }
+
+        div.stButton > button:hover {
+            background: linear-gradient(
+                135deg,
+                #9B6BB0,
+                #71478A
+            ) !important;
+
+            color: white !important;
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 11px 24px rgba(104, 64, 128, 0.28);
+        }
+
+        div.stButton > button:active {
+            transform: translateY(0);
+        }
+    
+        .login-box {
+            max-width: 500px;
+            margin: 120px auto 20px auto;
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #4B2E5A;
+            margin-bottom: 6px;
+            letter-spacing: -0.03em;
+        }
+
+        .login-subtitle {
+            color: #76677F;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+
+        .login-icon {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 20px auto;
+            border-radius: 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: linear-gradient(
+                135deg,
+                #8E5AA8,
+                #684080
+            );
+
+            color: white;
+            font-size: 30px;
+
+            box-shadow:
+                0 12px 30px rgba(104, 64, 128, 0.22);
+        }
+
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '<div class="login-box"></div>',
+        unsafe_allow_html=True,
+    )
+
+    st.title("🌸Flower Shop Analytics")
+
+    st.caption(
+        "Enter your password to access the analytics dashboard."
+    )
+
+    password = st.text_input(
+        "Password",
+        type="password",
+        placeholder="Enter your password",
+    )
+
+    if st.button(
+        "Sign In",
+        type="primary",
+        use_container_width=True,
+    ):
+
+        expected_password = st.secrets["APP_PASSWORD"]
+
+        if hmac.compare_digest(
+            password,
+            expected_password,
+        ):
+            st.session_state["authenticated"] = True
+            st.rerun()
+        else:
+            st.error("Incorrect password.")
+
+    return False
+
+# ============================================================
+# REQUIRE LOGIN
+# ============================================================
+
+if not check_password():
+    st.stop()
 
 
 # ============================================================
